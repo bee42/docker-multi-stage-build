@@ -13,6 +13,8 @@ Source and examples can be find at
 
 * https://github.com/bee42/docker-multi-stage-build
 
+![](images/heavy-stage-build.png)
+
 Feedback welcome
 
 [Peter Rossbach][3]
