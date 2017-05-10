@@ -3,11 +3,11 @@
 Here you can find my docker slide container decks from my docker multi stage build talks:
 
   - [Docker Meetup Bochum 2017 - Docker Multi Stage Build][1].
-    - open slidefire presentation container with `docker run -d -p 8000:80 bee42/docker-multi-stage-build:docker-meetup-bochum-2017-05`
+    - open slidefire presentation container with <br/> `docker run -d -p 8000:80 bee42/docker-multi-stage-build:docker-meetup-bochum-2017-05`
     - pdf [Docker Multi Stage Build][2] is now avaiable!
 
 
-Open slidefire presentation container with your browser `http <dockerhost>:8000/docker-multi-stage-build`
+Open slidefire presentation container with your browser <br/> `http <dockerhost>:8000/docker-multi-stage-build`
 
 Source and examples can be find at
 
