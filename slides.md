@@ -1,7 +1,7 @@
 # Speedup to build 
 # java images
 
-![](images/bee42_logo.png)
+![](images/bee42_logo.svg)
 
 ### **Peter Rossbach**
 
@@ -22,6 +22,7 @@ Docker Meetup 11.5.2017 Bochum
 ## Simple build
 
 * Local install java and mvn at your host
+* implement your spring boot app incr
 * Package with Dockerfile
 * Start with docker-compose
 
@@ -32,6 +33,7 @@ docker-compose build
 docker-compose up -d
 curl http://127.0.0.1:8080/incr
 ```
+
 
 -
 ## Build with separate docker-compose
@@ -57,6 +59,45 @@ one time run...
 
 ```shell
 docker-compose -f docker-compose-maven.yml run --rm maven
+```
+
+-
+## Dockerfile
+
+```txt
+FROM java:8-jre-alpine
+ADD /target/incr-0.0.1-SNAPSHOT.jar app.jar
+ENTRYPOINT [ "java", \
+             "-Djava.security.egd=file:/dev/./urandom", \
+             "-Djedis.pool.host=http://redis:6379", \
+             "-jar", "/app.jar" ]
+```
+
+-
+## docker-compose
+
+```
+version: "3"
+
+services:
+  incr:
+    build: .
+    image: 127.0.0.1:5000/bee42/incr
+    ports:
+       - "8080"
+    depends_on:
+      - redis
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+```
+
+```shell
+$ docker-compose build
+$ docker-compose up -d
+$ curl http://$(docker-compose port incr 8080)/incr
+{"hostname":"c39e543edb0f","name":"access","id":1}
 ```
 
 -
@@ -149,6 +190,7 @@ Java HotSpot(TM) 64-Bit Server VM (build 25.131-b11, mixed mode)
 ***
 * Please, check lisence agreement
 * __WARNING__: Don`t share or run oracle java images at production!
+* http://blog.takipi.com/running-java-on-docker-youre-breaking-the-law/
 
 -
 ### Fixit!
@@ -183,6 +225,54 @@ JAVA_OPTS="-XX:MaxRAM=`cat /sys/fs/cgroup/memory/memory.limit_in_bytes`"
 ```
 
 Today with java release 8 lesser than 131 use 50% and set `-Xmx${mx}``
+
+-
+### other jvm options
+
+* https://github.com/fabric8io-images/java
+* https://hub.docker.com/r/ibmcom/ibmjava/
+* https://hub.docker.com/_/openjdk/
+
+---
+## Multistage build with goland
+
+Example:
+
+```
+cat >main.go <<EOF
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello world!")
+}
+EOF
+```
+
+-
+### Dockerfile
+
+```
+FROM golang:1.8.1
+WORKDIR /go/src/github.com/plutov/golang-multi-stage/
+COPY main.go .
+RUN GOOS=linux go build -o app .
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=0 /go/src/github.com/plutov/golang-multi-stage/app .
+CMD ["./app"]
+```
+
+```
+$ docker build .
+$ docker ps
+REPOSITORY          TAG     IMAGE ID            CREATED           SIZE
+
+golang-multi-stage  latest  bcbbf69a9b59        6 minutes ago     6.7MB
+```
 
 ---
 ## Q&A
